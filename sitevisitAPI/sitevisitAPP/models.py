@@ -4,7 +4,48 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 
 
+class ClientDetails(models.Model):
+    id = models.AutoField(primary_key=True)
+    created_date=models.DateTimeField(default=timezone.now)
+    client_name = models.CharField(max_length=100)
+
+    COMMERCIAL = 'Commercial'
+    INDUSTRY = 'Industry'
+    Default='None'
+    
+    CATEGORY_CHOICES = [
+        (COMMERCIAL, 'Commercial'),
+        (INDUSTRY, 'Industry'),
+        (Default,'None')
+    ]
+    
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES,default=Default)
+    
+
+    client_mob_num = models.CharField(max_length=15)
+    country_code = models.CharField()    
+    location = models.CharField(max_length=255)
+    title = models.CharField(max_length=255)
+    
+    
+
+    
+    def __str__(self):
+        return self.client_name  
+
 class SiteVisit(models.Model):
+    id = models.AutoField(primary_key=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE,default='')
+    created_date = models.DateTimeField(default=timezone.now)
+    updated_date = models.DateTimeField(default=timezone.now)
+    #delete_status = models.PositiveSmallIntegerField(default=0)
+    visit = models.CharField(max_length=255, unique=True)
+    
+    def __str__(self):
+        return self.visit
+    
+
+"""class SiteVisit(models.Model):
     id = models.AutoField(primary_key=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE,default='')
     created_date = models.DateTimeField(default=timezone.now)
@@ -16,7 +57,7 @@ class SiteVisit(models.Model):
     status = models.CharField(max_length=50, choices=[('Pending', 'Pending'), ('Approved', 'Approved'), ('Completed', 'Completed')], blank=True, null=True)
     
     def __str__(self):
-        return self.visit
+        return self.visit"""
 
 
 class SiteVisitPhoto(models.Model):

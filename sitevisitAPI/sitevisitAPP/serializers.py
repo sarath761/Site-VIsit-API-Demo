@@ -1,11 +1,39 @@
 from rest_framework import serializers
-from .models import SiteVisit, SiteVisitPhoto,  ChecklistItem
+from .models import SiteVisit, SiteVisitPhoto,ChecklistItem,ClientDetails
 from django.contrib.auth.models import User
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username']
+
+
+
+class Client_Details_Serializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    created_date=serializers.DateTimeField(read_only=True)
+    client_name = serializers.CharField(max_length=100)
+    client_mob_num = serializers.CharField()
+    country_code = serializers.CharField()
+    category=serializers.CharField(max_length=50)
+    location = serializers.CharField(max_length=255)
+    title = serializers.CharField(max_length=100)
+    
+    
+    
+    def create(self, validated_data):
+        return ClientDetails.objects.create(**validated_data)
+    
+
+    def update(self, instance, validated_data):
+        instance.client_name = validated_data.get('client_name', instance.client_name)
+        instance.client_mob_num = validated_data.get('client_mob_num', instance.client_mob_num)
+        instance.country_code = validated_data.get('country_code', instance.country_code)
+        instance.location = validated_data.get('location', instance.location)
+        instance.title = validated_data.get('title', instance.title)
+        instance.category = validated_data.get('category', instance.category)
+        instance.save()
+        return instance
 
 
 #This creates the sitevisit instance for seperate creation
@@ -15,9 +43,7 @@ class BasicDetailsSerializer(serializers.Serializer):
     created_date = serializers.DateTimeField(read_only=True)
     updated_date = serializers.DateTimeField(read_only=True)
     visit = serializers.CharField(max_length=100)
-    description = serializers.CharField(max_length=255)
-    plan_file = serializers.FileField(allow_empty_file=True)  
-    status = serializers.CharField(max_length=20)
+   
     
     def create(self, validated_data):
         
@@ -25,10 +51,7 @@ class BasicDetailsSerializer(serializers.Serializer):
         
         sitevisit_data = {
             'created_by' : validated_data['created_by'],
-            'visit': validated_data['visit'],
-            'description': validated_data['description'],
-            'plan_file': validated_data.get('plan_file'), 
-            'status': validated_data['status'],
+            'visit': validated_data['visit'],   
         }
         sitevisit = SiteVisit.objects.create(**sitevisit_data)
 
@@ -37,10 +60,6 @@ class BasicDetailsSerializer(serializers.Serializer):
     def update(self, instance, validated_data):
         # Update the instance fields with validated data
         instance.visit = validated_data.get('visit', instance.visit)
-        instance.description = validated_data.get('description', instance.description)
-        instance.plan_file = validated_data.get('plan_file', instance.plan_file)
-        instance.status = validated_data.get('status', instance.status)
-
         # Save the updated instance
         instance.save()
         return instance
